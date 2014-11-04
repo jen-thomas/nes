@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from django.shortcuts import get_object_or_404
 from django.test import TestCase, Client
 
 from django.http import Http404
@@ -451,6 +452,22 @@ class PatientFormValidation(TestCase):
         response = self.client.post(reverse(PATIENT_SEARCH), self.data)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, patient_mock.cpf)
+
+    def test_remove_patient_get(self):
+        patient_mock = self.util.create_patient_mock(user=self.user)
+
+        count_patients = Patient.objects.count()
+
+        self.assertEqual(count_patients, 1)
+
+        self.data[ACTION] = 'remove'
+        request = self.factory.get(reverse(PATIENT_EDIT, args=[patient_mock.pk]))
+        request.user = self.user
+
+        patient_update(request=request, patient_id=patient_mock.pk)
+        patient_mock = get_object_or_404(Patient, id=patient_mock.pk)
+
+        self.assertEqual(patient_mock.removed, False)
 
     def test_update_patient_not_exist(self):
         """Teste de paciente nao existente na base de dados """

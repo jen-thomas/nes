@@ -374,7 +374,7 @@ def get_limesurvey_response_url(questionnaire_response):
 
     redirect_url = \
         '%s/index.php/%s/token/%s/responsibleid/%s/acquisitiondate/%s/subjectid/%s/newtest/Y' % (
-            settings.LIMESURVEY['URL'],
+            settings.LIMESURVEY['URL_WEB'],
             questionnaire_response.questionnaire_configuration.lime_survey_id,
             token,
             str(questionnaire_response.questionnaire_responsible.id),

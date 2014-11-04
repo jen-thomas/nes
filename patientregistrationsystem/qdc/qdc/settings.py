@@ -84,7 +84,8 @@ DATABASES = {
 
 # LimeSurvey configuration
 LIMESURVEY = {
-    'URL': '',
+    'URL_API': '',
+    'URL_WEB': '',
     'USER': '',
     'PASSWORD': '',
 }

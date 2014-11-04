@@ -16,7 +16,7 @@ class ABCSearchEngine:
         self.get_session_key()
 
     def get_session_key(self):
-        self.server = pyjsonrpc.HttpClient(settings.LIMESURVEY['URL'] + "/index.php/admin/remotecontrol")
+        self.server = pyjsonrpc.HttpClient(settings.LIMESURVEY['URL_API'] + "/index.php/admin/remotecontrol")
         try:
             self.session_key = self.server.get_session_key(settings.LIMESURVEY['USER'], settings.LIMESURVEY['PASSWORD'])
         except:
