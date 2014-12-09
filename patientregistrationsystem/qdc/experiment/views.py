@@ -280,7 +280,7 @@ def subjects(request, experiment_id, template_name="experiment/subjects.html"):
                             number_of_questionnaires_completed += 1
 
                     if (questionnaire_configuration.number_of_fills is None and
-                            number_of_questionnaires_completed > 0) or \
+                            number_of_questionnaires_completed >= subject_responses.count()) or \
                             (questionnaire_configuration.number_of_fills is not None and
                                 number_of_questionnaires_completed >= questionnaire_configuration.number_of_fills):
                         number_of_questionnaires_filled += 1
