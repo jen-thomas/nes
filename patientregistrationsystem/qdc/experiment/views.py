@@ -533,19 +533,20 @@ def check_required_fields(surveys, lime_survey_id):
     groups = surveys.list_groups(lime_survey_id)
 
     for group in groups:
-        question_list = surveys.list_questions(lime_survey_id, group['id'])
-        for question in question_list:
-            question_properties = surveys.get_question_properties(question)
-            if question_properties['title'] in fields_to_validate:
-                field = fields_to_validate[question_properties['title']]
-                if not field['found']:
-                    field['found'] = True
-                    if field['type'] == question_properties['type']:
-                        validated_quantity += 1
-                    else:
-                        error = True
-            if error or validated_quantity == len(fields_to_validate):
-                break
+        if 'id' in group:
+            question_list = surveys.list_questions(lime_survey_id, group['id'])
+            for question in question_list:
+                question_properties = surveys.get_question_properties(question)
+                if question_properties['title'] in fields_to_validate:
+                    field = fields_to_validate[question_properties['title']]
+                    if not field['found']:
+                        field['found'] = True
+                        if field['type'] == question_properties['type']:
+                            validated_quantity += 1
+                        else:
+                            error = True
+                if error or validated_quantity == len(fields_to_validate):
+                    break
         if error or validated_quantity == len(fields_to_validate):
             break
 
