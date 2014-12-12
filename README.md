@@ -11,3 +11,5 @@ Step-by-step description of the system (in Brazilian Portuguese):
   
 Screenshots: 
   http://neuromat.numec.prp.usp.br/relatorio/screenshots/funcionalidades/
+  
+For more about the NeuroMat project, please visit our website: http://neuromat.numec.prp.usp.br/
