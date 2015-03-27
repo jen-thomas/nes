@@ -18,7 +18,10 @@ from django.conf import settings
 
 from functools import partial
 
+from StringIO import StringIO
+
 import re
+import csv
 
 import datetime
 
@@ -610,11 +613,16 @@ def questionnaire_response_view(request, questionnaire_response_id,
                                 'type': properties['type']
                             })
 
-        responses_list = surveys.get_responses_by_token(questionnaire_configuration.lime_survey_id, token)
-        responses_list = responses_list.replace('\"', '')
-        responses_list = responses_list.split('\n')
-        responses_list[0] = responses_list[0].split(",")
-        responses_list[1] = responses_list[1].split(",")
+        # Reading from Limesurvey and...
+        responses_string = surveys.get_responses_by_token(questionnaire_configuration.lime_survey_id, token)
+
+        # ... transforming to a list:
+        #   response_list[0] has the questions
+        #   response_list[1] has the answers
+        reader = csv.reader(StringIO(responses_string), delimiter=',')
+        responses_list = []
+        for row in reader:
+            responses_list.append(row)
 
         for question in question_properties:
 
