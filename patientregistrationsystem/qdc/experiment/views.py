@@ -583,13 +583,32 @@ def questionnaire_response_view(request, questionnaire_response_id,
     if not isinstance(groups, dict):
         for group in groups:
             if 'id' in group:
+
                 question_list = surveys.list_questions(questionnaire_configuration.lime_survey_id, group['id'])
                 question_list = sorted(question_list)
+
                 for question in question_list:
+
                     properties = surveys.get_question_properties(question)
-                    if ('{int' not in properties['question']) and ('{(' not in properties['question'])\
-                            and ('{if' not in properties['question']) and ('{pont' not in properties['question']):
-                        properties['question'] = re.sub('<.*?>', '', properties['question'])
+
+                    is_purely_formula = (properties['type'] == '*') and \
+                                        ((re.sub('{.*?}', '',
+                                                 re.sub('<.*?>', '', properties['question']))).strip() == '')
+
+                    if is_purely_formula:
+                        is_purely_formula = True
+
+                    # if ('{int' not in properties['question']) and ('{(' not in properties['question'])\
+                    #         and ('{if' not in properties['question']) and ('{pont' not in properties['question']):
+
+                    properties['question'] = re.sub('<.*?>', '', properties['question'])
+                    properties['question'] = re.sub('{.*?}', '', properties['question'])
+                    properties['question'] = (properties['question']).strip()
+
+                    if (re.sub('{.*?}', '', properties['question'])).strip() == '':
+                        is_purely_formula = is_purely_formula
+
+                    if not is_purely_formula and properties['question'] != '':
 
                         if isinstance(properties['subquestions'], dict):
                             question_properties.append({
