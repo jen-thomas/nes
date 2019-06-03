@@ -16,7 +16,6 @@ from plugin.models import RandomForests
 from plugin.tests.LimeSurveyAPI_mocks import set_limesurvey_api_mocks
 from plugin.views import send_to_plugin
 from patient.tests.tests_orig import UtilTests
-from survey.models import Survey
 from survey.tests.tests_helper import create_survey
 
 
@@ -29,15 +28,9 @@ class PluginTest(ExportTestCase):
     def tearDown(self):
         self.client.logout()
 
-    def _create_basic_objects(self):
-        survey1 = create_survey()
-        survey2 = create_survey(505050)
-        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
-        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
-        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
-
     def test_send_to_plugin_status_code(self):
-        response = self.client.get(reverse('send_to_plugin'), follow=True)
+        url = reverse('send_to_plugin')
+        response = self.client.get(url, follow=True)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'plugin/send_to_plugin.html')
 
@@ -45,21 +38,19 @@ class PluginTest(ExportTestCase):
         view = resolve('/plugin/')
         self.assertEquals(view.func, send_to_plugin)
 
-    def test_GET_send_to_plugin_display_questionnaire_names_in_interface(self):
-        self._create_basic_objects()
-        response = self.client.get(reverse('send_to_plugin'))
-        for survey in Survey.objects.all():
-            self.assertContains(response, survey.pt_title)
-
     @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     @patch('survey.abc_search_engine.Server')
     def test_POST_send_to_plugin_returns_zip_file(self, mockServer):
         set_limesurvey_api_mocks(mockServer)
 
-        self._create_basic_objects()
         patient2 = UtilTests.create_patient(self.user)
-        for survey in Survey.objects.all():
-            UtilTests.create_response_survey(self.user, patient2, survey, 50)
+        survey1 = create_survey()
+        survey2 = create_survey(505050)
+        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
+        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
+        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
+        UtilTests.create_response_survey(self.user, patient2, survey1, 50)
+        UtilTests.create_response_survey(self.user, patient2, survey2, 50)
         response = self.client.post(
             reverse('send_to_plugin'),
             data={
@@ -87,10 +78,14 @@ class PluginTest(ExportTestCase):
             {'token': 'WRFUAgTemzuu8nD'}, {'token': 'fFPnTsNUJwRye3g'}
         ]
 
-        self._create_basic_objects()
         patient2 = UtilTests.create_patient(self.user)
-        for survey in Survey.objects.all():
-            UtilTests.create_response_survey(self.user, patient2, survey, 50)
+        survey1 = create_survey()
+        survey2 = create_survey(505050)
+        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
+        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
+        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
+        UtilTests.create_response_survey(self.user, patient2, survey1, 50)
+        UtilTests.create_response_survey(self.user, patient2, survey2, 50)
         response = self.client.post(
             reverse('send_to_plugin'),
             data={
@@ -134,11 +129,16 @@ class PluginTest(ExportTestCase):
 
         shutil.rmtree(self.TEMP_MEDIA_ROOT)
 
+    @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     @patch('survey.abc_search_engine.Server')
     def test_POST_send_to_plugin_does_not_select_any_attribute_display_warning_message(self, mockServer):
         set_limesurvey_api_mocks(mockServer)
 
-        self._create_basic_objects()
+        survey1 = create_survey()
+        survey2 = create_survey(505050)
+        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
+        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
+        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
         response = self.client.post(
             reverse('send_to_plugin'),
             data={
@@ -149,11 +149,16 @@ class PluginTest(ExportTestCase):
         message = str(list(get_messages(response.wsgi_request))[0])
         self.assertEqual(message, 'Please select at least Gender participant attribute')
 
+    @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
     @patch('survey.abc_search_engine.Server')
     def test_POST_send_to_plugin_does_not_select_any_patient_display_warning_message(self, mockServer):
         set_limesurvey_api_mocks(mockServer)
 
-        self._create_basic_objects()
+        survey1 = create_survey()
+        survey2 = create_survey(505050)
+        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
+        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
+        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
         response = self.client.post(
             reverse('send_to_plugin'),
             data={
@@ -169,7 +174,11 @@ class PluginTest(ExportTestCase):
     def test_POST_send_to_plugin_does_not_patient_gender_display_warning_message(self, mockServer):
         set_limesurvey_api_mocks(mockServer)
 
-        self._create_basic_objects()
+        survey1 = create_survey()
+        survey2 = create_survey(505050)
+        RandomForests.objects.create(admission_assessment=survey1, surgical_evaluation=survey2)
+        UtilTests.create_response_survey(self.user, self.patient, survey1, 21)
+        UtilTests.create_response_survey(self.user, self.patient, survey2, 21)
         response = self.client.post(
             reverse('send_to_plugin'),
             data={
